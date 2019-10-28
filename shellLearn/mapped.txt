@@ -1,0 +1,67 @@
+grep  '^com.momo.mwservice.MSInstance' /Users/zhuzhe/Desktop/mapping.txt | grep -v '\$'
+
+
+
+
+
+
+* com.immomo.molive.gui.activities.live.base.LiveActivity has leaked:
+* GC ROOT static com.immomo.molive.connect.m.c.g$a.a
+* references com.immomo.molive.connect.m.c.g.e
+* references com.momo.mwservice.c.Z
+* references android.widget.ImageView.mContext
+* leaks com.immomo.molive.gui.activities.live.base.LiveActivity instance
+
+---
+* com.immomo.molive.gui.activities.live.base.LiveActivity has leaked:
+* GC ROOT static com.immomo.molive.connect.pkgame.common.PkGameResourceLoader$Holder.INSTANCE
+* references com.immomo.molive.connect.pkgame.common.PkGameResourceLoader.msInstance
+* references com.momo.mwservice.MSInstance.cacheImageView
+* references android.widget.ImageView.mContext
+* leaks com.immomo.molive.gui.activities.live.base.LiveActivity instance
+
+
+反解思路应该是:
+1. com.immomo.molive.connect.m.c.g --> ?
+2. com.immomo.molive.connect.m.c.g$a --> ?
+3. com.immomo.molive.connect.m.c.g$a.a --> ?
+4. com.immomo.molive.connect.m.c.g.e --> ?
+5. com.momo.mwservice.c.Z --> ?
+
+// 第一步
+➜  ~ grep com.immomo.molive.connect.m.c.g /Users/zhuzhe/Desktop/mapping.txt | grep -v '\$'
+com.immomo.molive.connect.pkgame.common.PkGameResourceLoader -> com.immomo.molive.connect.m.c.g:
+
+// 第二步
+➜  ~ grep "com.immomo.molive.connect.m.c.g\$a" /Users/zhuzhe/Desktop/mapping.txt
+com.immomo.molive.connect.pkgame.common.PkGameResourceLoader$Holder -> com.immomo.molive.connect.m.c.g$a:
+
+// 第三步
+➜  ~ grep -A 3 "com.immomo.molive.connect.m.c.g\$a:" /Users/zhuzhe/Desktop/mapping.txt | grep -e "-> a"
+    com.immomo.molive.connect.pkgame.common.PkGameResourceLoader INSTANCE -> a
+
+// 第四步:
+➜  ~ grep -A 6 "com.immomo.molive.connect.m.c.g:" /Users/zhuzhe/Desktop/mapping.txt | grep -v '\$' | grep -e "-> e"
+    com.momo.mwservice.MSInstance msInstance -> e
+
+// 第五步:
+➜  ~ grep -A 54 -w 'com.momo.mwservice.c:' /Users/zhuzhe/Desktop/mapping.txt | grep -e "-> Z"
+    android.widget.ImageView cacheImageView -> Z
+
+
+* GC ROOT static com.immomo.molive.connect.m.c.g$a.a
+grep "com.immomo.molive.connect.m.c.g$a.a" /Users/zhuzhe/Desktop/mapping.txt
+grep -A 3 -e "com.immomo.molive.connect.pkgame.common.PkGameResourceLoader\$Holder -> com.immomo.molive.connect.m.c.g" /Users/zhuzhe/Desktop/mapping.txt | grep -e "-> a"
+
+
+
+* references com.immomo.molive.connect.m.c.g.e
+grep -A 6 "com.immomo.molive.connect.m.c.g" /Users/zhuzhe/Desktop/mapping.txt | grep -v '\$'
+
+grep -A 6 "com.immomo.molive.connect.m.c.g" /Users/zhuzhe/Desktop/mapping.txt | grep -v '\$' | grep -e "-> e"
+
+
+
+
+
+---
